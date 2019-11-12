@@ -3,6 +3,9 @@ package com.example.primeravistaapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,13 +34,14 @@ public class LoginActivity extends AppCompatActivity {
             Intent i = new Intent(this, MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(i);
-        } else {
+        }else {
             startActivityForResult(AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(Arrays.asList(
                     new AuthUI.IdpConfig.EmailBuilder().setAllowNewAccounts(true).build(), new AuthUI.IdpConfig.GoogleBuilder().build())).build()
                     //.setIsSmartLockEnabled(false)
                     , RC_SIGN_IN);
         }
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -46,7 +50,8 @@ public class LoginActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 login();
                 finish();
-            } else {
+            }
+            else {
                 IdpResponse response = IdpResponse.fromResultIntent(data);
                 if (response == null) {
                     Toast.makeText(this, "Cancelado", Toast.LENGTH_LONG).show();
@@ -63,4 +68,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }

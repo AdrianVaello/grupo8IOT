@@ -2,20 +2,27 @@ package com.example.primeravistaapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentTabHost;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
+
     private FragmentTabHost tabHost;
-boolean flag;
+    private static final long MIN_TIME = 10;
+    private Button btn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -38,25 +45,66 @@ boolean flag;
         //Intent intencion = new Intent(getApplicationContext(), MenuHamburguesa.class);
         //startActivity(intencion);
 
-        // Initialize Firebase Auth
-        flag = isUserLogged();
+        /*btn = findViewById(R.id.BotonMapa);
+        btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {*/
+                if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
+
+                } else {
+                    iniciarLocalizacion();
+                }
+            /*}
+        });*/
+
+
+
+
+
+    }
+
+    private void iniciarLocalizacion() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        Localizacion local = new Localizacion();
+
+
+        final boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (!gpsEnabled) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
+            return;
+        }
+
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, 0, local);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, 0, local);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]grantResults) {
+        if(requestCode == 1000) {
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                iniciarLocalizacion();
+                return;
+            }
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-
-        MenuItem item = menu.findItem(R.id.menu_login);
-        MenuItem item2 = menu.findItem(R.id.menu_usuario1);
-        if(flag){
-            item.setVisible(false);
-            item2.setVisible(true);
-        }else{
-            item.setVisible(true);
-            item2.setVisible(false);
-        }
         return true;
     }
 
@@ -70,9 +118,18 @@ boolean flag;
             case R.id.menu_usuario1:
                 lanzarEditarPerfil(null);
                 return true;
+            case R.id.BotonMapa:
+                verMapa(null);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+
+    public void verMapa(View view){
+        Intent i = new Intent(this, MapsActivity.class);
+        startActivity(i);
     }
 
     public void lanzarInvitarAmigos(View view){
@@ -83,19 +140,11 @@ boolean flag;
     public void lanzarLogin(View view){
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
+        //findViewById(R.id.menu_usuario1).setVisibility(View.VISIBLE);
     }
     public void lanzarEditarPerfil(View view){
         Intent i = new Intent(this, UsuarioActivity.class);
         startActivity(i);
     }
-    /**
-     * Comprobacion de usuario logueado
-     */
-    public static boolean isUserLogged(){
-        FirebaseUser mAuth = FirebaseAuth.getInstance().getCurrentUser();
-        if (mAuth == null){
-            return false;
-        }
-        return  true;
-    }
+
 }
