@@ -10,12 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
 public class MainActivity extends AppCompatActivity {
+
     private FragmentTabHost tabHost;
-boolean flag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -37,26 +35,12 @@ boolean flag;
         //      Tab4.class, null);
         //Intent intencion = new Intent(getApplicationContext(), MenuHamburguesa.class);
         //startActivity(intencion);
-
-        // Initialize Firebase Auth
-        flag = isUserLogged();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-
-        MenuItem item = menu.findItem(R.id.menu_login);
-        MenuItem item2 = menu.findItem(R.id.menu_usuario1);
-        if(flag){
-            item.setVisible(false);
-            item2.setVisible(true);
-        }else{
-            item.setVisible(true);
-            item2.setVisible(false);
-        }
         return true;
     }
 
@@ -88,14 +72,5 @@ boolean flag;
         Intent i = new Intent(this, UsuarioActivity.class);
         startActivity(i);
     }
-    /**
-     * Comprobacion de usuario logueado
-     */
-    public static boolean isUserLogged(){
-        FirebaseUser mAuth = FirebaseAuth.getInstance().getCurrentUser();
-        if (mAuth == null){
-            return false;
-        }
-        return  true;
-    }
+
 }
